@@ -42,7 +42,7 @@ const memberData: Record<string, { name: string; role: string }> = {
   MatthewMartin:   { name: "Matthew Martin",    role: "Development Team Lead" },
   SayamGupta:      { name: "Sayam Gupta",       role: "Development Team" },
   TylerSanford:    { name: "Tyler Sanford",     role: "Director" },
-  JadaCastile:     { name: "Jada Castile",      role: "Logistics Member" },
+  JadaCastile:     { name: "Jada Castile",      role: "Logistics Team" },
 };
 
 const busWindows = [
@@ -167,7 +167,7 @@ const lillypads = [
             alt="Team member"
             draggable="false"
           />
-          <div class="team-member-name absolute bottom-0 left-0 right-0 text-center text-white text-xs font-semibold py-1 px-1 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none leading-tight"></div>
+          <div class="team-member-name absolute bottom-0 left-0 right-0 text-center text-white text-xs font-semibold py-1 px-1 bg-[#264852] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none leading-tight"></div>
         </div>
       ))}
     </div>
@@ -297,9 +297,11 @@ const lillypads = [
   if (teamMembers.length === 0) return;
 
   function getMemberInfo(src) {
-    const filename = src.split('/').pop().replace(/\.[^.]+$/, '');
-    return memberData[filename] || { name: filename.replace(/([A-Z])/g, ' $1').trim(), role: '' };
+  for (const [key, info] of Object.entries(memberData)) {
+    if (src.includes(key)) return info;
   }
+  return { name: 'Team Member', role: '' };
+}
 
   const total = teamWindows.length;
   const currentIndices = Array.from({ length: total }, (_, i) =>
