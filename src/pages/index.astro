@@ -9,9 +9,50 @@ import Lillypad4 from "../assets/lillypad-4.svg";
 import Lillypad5 from "../assets/lillypad-5.svg";
 import Lillypad6 from "../assets/lillypad-6.svg";
 import Bus from "../assets/bus.svg";
+import BusShadow from "../assets/bus-shadow.svg";
 
 const sponsorModules = import.meta.glob('../assets/sponsors/*', { eager: true });
 const sponsors: string[] = Object.values(sponsorModules).map((mod: any) => mod.default.src ?? mod.default);
+
+const sponsorUrlMap: Record<string, string> = {
+  nordvpn:    "https://nordvpn.com/hackathons",
+  incogni:    "https://incogni.com/",
+  nordpass:   "https://nordpass.com/",
+  saily:      "https://saily.com/",
+  "nexos-ai": "https://nexos.ai/",
+};
+
+const sponsorUrls: string[] = Object.keys(sponsorModules).map((path) => {
+  const filename = path.toLowerCase();
+  for (const [key, url] of Object.entries(sponsorUrlMap)) {
+    if (filename.includes(key)) return url;
+  }
+  return "";
+});
+
+const teamModules = import.meta.glob('../assets/headshots/*.webp', { eager: true });
+const teamMembers: string[] = Object.values(teamModules).map((mod: any) => mod.default.src ?? mod.default);
+
+const memberData: Record<string, { name: string; role: string }> = {
+  AlvinMoy:        { name: "Alvin Moy",        role: "Design Team Lead" },
+  ElleHamilton:    { name: "Elle Hamilton",     role: "Design Team" },
+  JasonDieckhaus:  { name: "Jason Dieckhaus",   role: "Logistics Team Lead" },
+  JoshuaKroft:     { name: "Joshua Kroft",      role: "Design Team" },
+  MarcellaTebeau:  { name: "Marcella Tebeau",   role: "Design Team" },
+  MatthewMartin:   { name: "Matthew Martin",    role: "Development Team Lead" },
+  SayamGupta:      { name: "Sayam Gupta",       role: "Development Team" },
+  TylerSanford:    { name: "Tyler Sanford",     role: "Director" },
+  JadaCastile:     { name: "Jada Castile",      role: "Logistics Member" },
+};
+
+const busWindows = [
+  { svgX: 36,   svgY: 52, svgW: 145.5, svgH: 130 },
+  { svgX: 198,  svgY: 52, svgW: 115,   svgH: 111 },
+  { svgX: 329,  svgY: 52, svgW: 115,   svgH: 111 },
+  { svgX: 460,  svgY: 52, svgW: 115,   svgH: 111 },
+  { svgX: 585,  svgY: 52, svgW: 115,   svgH: 111 },
+  { svgX: 721,  svgY: 52, svgW: 115,   svgH: 111 },
+];
 
 const days = [
   {
@@ -65,6 +106,10 @@ const lillypads = [
 <Layout>
   <div class="relative w-full overflow-hidden">
     <img class="block w-full h-auto align-middle" src={LandingPage.src} alt="PickHacks 2026" />
+    <div class="absolute left-1/2 sm:top-[11%] top-[21%] -translate-x-1/2 z-1 flex flex-col items-center gap-6">
+      <h1 class="sm:text-5xl text-3xl w-full text-center text-[#ebebeb] font-black text-shadow-2xl text-nowrap">February 27th - March 1st</h1>
+      <a class="sm:text-3xl text-xl sm:px-6 sm:py-3 px-4 py-2 text-black font-bold border-5 hover:bg-[#bd6e44] border-[#bd6e44] rounded-xl duration-100 transition-all" href="https://register.pickhacks.io/">Register</a>
+    </div>
     <img
       class="absolute left-1/2 top-[30%] w-[60%] sm:top-[35%] sm:w-[50%] -translate-x-1/2 z-10"
       src={Sign.src}
@@ -85,54 +130,198 @@ const lillypads = [
     {lillypads.map((pad, i) => (
       <div class={`${pad.cls} lillypad-wrapper`} data-index={i}>
         <div class="absolute inset-0 flex items-center justify-center">
-          <img class="sponsor-img w-full h-full object-contain opacity-0 transition-opacity duration-400" src="" alt="Sponsor" />
+          <a
+            class="sponsor-link w-full h-full flex items-center justify-center"
+            target="_blank"
+            rel="nofollow sponsored noopener noreferrer"
+          >
+            <img
+              class="sponsor-img w-full h-full object-contain opacity-0 transition-opacity duration-400"
+              src=""
+              alt="Sponsor"
+            />
+          </a>
         </div>
         <img src={pad.src} class="w-full" aria-hidden="true" />
       </div>
     ))}
 
-    <img src={Bus.src} class="absolute left-1/2 bottom-[3.5%] w-[85%] -translate-x-1/2 z-10" aria-hidden="true" />
+    <img id="bus-shadow" src={BusShadow.src} class="absolute left-1/2 bottom-[3%] w-[85%] z-10" aria-hidden="true" />
+
+    <div id="bus-container" class="absolute left-1/2 bottom-[3.5%] w-[85%] z-20">
+      <img src={Bus.src} class="w-full h-auto block" aria-hidden="true" id="bus-img" />
+      {busWindows.map((win, i) => (
+        <div
+          class="team-window group absolute overflow-hidden opacity-0 transition-opacity duration-200"
+          data-index={i}
+          data-svgx={win.svgX}
+          data-svgy={win.svgY}
+          data-svgw={win.svgW}
+          data-svgh={win.svgH}
+        >
+          <img
+            class="team-member-img w-full h-full object-cover"
+            src=""
+            alt="Team member"
+          />
+          <div class="team-member-name absolute bottom-0 left-0 right-0 text-center text-white text-xs font-semibold py-1 px-1 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none leading-tight"></div>
+        </div>
+      ))}
+    </div>
   </div>
 </Layout>
 
-<script define:vars={{ sponsors }}>
+<style>
+  @keyframes busExit {
+    from { transform: translateX(-50%); }
+    to   { transform: translateX(-200%); }
+  }
+  @keyframes busEnter {
+    from { transform: translateX(150%); }
+    to   { transform: translateX(-50%); }
+  }
+  #bus-container { transform: translateX(-50%); }
+  #bus-shadow    { transform: translateX(-50%); }
+  #bus-container.bus-exit  { animation: busExit  1.2s cubic-bezier(0.4, 0, 1, 1) forwards; }
+  #bus-container.bus-enter { animation: busEnter 1.2s cubic-bezier(0, 0, 0.3, 1) forwards; }
+  #bus-shadow.bus-exit     { animation: busExit  1.2s cubic-bezier(0.4, 0, 1, 1) forwards; }
+  #bus-shadow.bus-enter    { animation: busEnter 1.2s cubic-bezier(0, 0, 0.3, 1) forwards; }
+</style>
+
+<script define:vars={{ sponsors, sponsorUrls }}>
   const pads = document.querySelectorAll('.lillypad-wrapper');
   const total = pads.length;
 
-  if (sponsors.length > 0) {
-    const currentIndices = Array.from({ length: total }, (_, i) =>
-      Math.floor((i * sponsors.length) / total)
-    );
+  if (sponsors.length === 0) return;
 
-    pads.forEach((pad, i) => {
-      const img = pad.querySelector('.sponsor-img');
-      img.src = sponsors[currentIndices[i]];
+  const currentIndices = Array.from({ length: total }, (_, i) =>
+    Math.floor((i * sponsors.length) / total)
+  );
+
+  function applySponsor(pad, index, fadeIn = true) {
+    const link = pad.querySelector('.sponsor-link');
+    const img  = pad.querySelector('.sponsor-img');
+    const url  = sponsorUrls[index] || "";
+
+    img.src = sponsors[index];
+
+    if (url) {
+      link.href = url;
+      link.style.cursor = 'pointer';
+    } else {
+      link.removeAttribute('href');
+      link.style.cursor = 'default';
+    }
+
+    if (fadeIn) {
       requestAnimationFrame(() => img.classList.replace('opacity-0', 'opacity-100'));
-    });
+    }
+  }
 
-    pads.forEach((pad, i) => {
+  pads.forEach((pad, i) => applySponsor(pad, currentIndices[i]));
+
+  pads.forEach((pad, i) => {
+    const cycle = () => {
       const img = pad.querySelector('.sponsor-img');
-
-      const cycle = () => {
-        img.classList.replace('opacity-100', 'opacity-0');
-        setTimeout(() => {
-          const inUse = currentIndices.filter((_, j) => j !== i);
-          let next = (currentIndices[i] + 1) % sponsors.length;
-          let attempts = 0;
-          while (inUse.includes(next) && attempts < sponsors.length) {
-            next = (next + 1) % sponsors.length;
-            attempts++;
-          }
-          currentIndices[i] = next;
-          img.src = sponsors[next];
-          img.classList.replace('opacity-0', 'opacity-100');
-        }, 500);
-      };
-
+      img.classList.replace('opacity-100', 'opacity-0');
       setTimeout(() => {
-        cycle();
-        setInterval(cycle, 10000);
-      }, 5000 + i * 1000);
+        const inUse = currentIndices.filter((_, j) => j !== i);
+        let next = (currentIndices[i] + 1) % sponsors.length;
+        let attempts = 0;
+        while (inUse.includes(next) && attempts < sponsors.length) {
+          next = (next + 1) % sponsors.length;
+          attempts++;
+        }
+        currentIndices[i] = next;
+        applySponsor(pad, next, true);
+      }, 500);
+    };
+    setTimeout(() => { cycle(); setInterval(cycle, 10000); }, 5000 + i * 1000);
+  });
+</script>
+
+<script define:vars={{ teamMembers, memberData }}>
+  const SVG_W = 847;
+  const SVG_H = 378;
+
+  const busImg       = document.getElementById('bus-img');
+  const busContainer = document.getElementById('bus-container');
+  const busShadow    = document.getElementById('bus-shadow');
+  const teamWindows  = document.querySelectorAll('.team-window');
+
+  function positionWindows() {
+    const renderedW = busImg.offsetWidth;
+    const renderedH = busImg.offsetHeight;
+    teamWindows.forEach((win) => {
+      const svgX = parseFloat(win.dataset.svgx);
+      const svgY = parseFloat(win.dataset.svgy);
+      const svgW = parseFloat(win.dataset.svgw);
+      const svgH = parseFloat(win.dataset.svgh);
+      win.style.left   = `${(svgX / SVG_W) * renderedW}px`;
+      win.style.top    = `${(svgY / SVG_H) * renderedH}px`;
+      win.style.width  = `${(svgW / SVG_W) * renderedW}px`;
+      win.style.height = `${(svgH / SVG_H) * renderedH}px`;
     });
   }
+
+  busImg.addEventListener('load', positionWindows);
+  if (busImg.complete) positionWindows();
+  window.addEventListener('resize', positionWindows);
+
+  if (teamMembers.length === 0) return;
+
+  function getMemberInfo(src) {
+    const filename = src.split('/').pop().replace(/\.[^.]+$/, '');
+    return memberData[filename] || { name: filename.replace(/([A-Z])/g, ' $1').trim(), role: '' };
+  }
+
+  const total = teamWindows.length;
+  const currentIndices = Array.from({ length: total }, (_, i) =>
+    Math.floor((i * teamMembers.length) / total)
+  );
+
+  function applyMember(win, index) {
+    const img   = win.querySelector('.team-member-img');
+    const label = win.querySelector('.team-member-name');
+    const info = getMemberInfo(teamMembers[index]);
+    img.src = teamMembers[index];
+    label.innerHTML = `<span class="block font-bold">${info.name}</span><span class="block opacity-80">${info.role}</span>`;
+    win.classList.replace('opacity-0', 'opacity-100');
+  }
+
+  function loadNewMembers() {
+    teamWindows.forEach((win, i) => {
+      const inUse = currentIndices.filter((_, j) => j !== i);
+      let next = (currentIndices[i] + 1) % teamMembers.length;
+      let attempts = 0;
+      while (inUse.includes(next) && attempts < teamMembers.length) {
+        next = (next + 1) % teamMembers.length;
+        attempts++;
+      }
+      currentIndices[i] = next;
+      applyMember(win, next);
+    });
+  }
+
+  function driveOffAndBack() {
+    busContainer.classList.remove('bus-enter');
+    busShadow.classList.remove('bus-enter');
+    busContainer.classList.add('bus-exit');
+    busShadow.classList.add('bus-exit');
+
+    setTimeout(() => {
+      loadNewMembers();
+      positionWindows();
+
+      busContainer.classList.remove('bus-exit');
+      busShadow.classList.remove('bus-exit');
+      void busContainer.offsetWidth;
+      busContainer.classList.add('bus-enter');
+      busShadow.classList.add('bus-enter');
+    }, 1300);
+  }
+
+  teamWindows.forEach((win, i) => applyMember(win, currentIndices[i]));
+
+  setInterval(driveOffAndBack, 10000);
 </script>
