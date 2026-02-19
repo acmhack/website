@@ -8,6 +8,10 @@ import Lillypad3 from "../assets/lillypad-3.svg";
 import Lillypad4 from "../assets/lillypad-4.svg";
 import Lillypad5 from "../assets/lillypad-5.svg";
 import Lillypad6 from "../assets/lillypad-6.svg";
+import Bus from "../assets/bus.svg";
+
+const sponsorModules = import.meta.glob('../assets/sponsors/*', { eager: true });
+const sponsors: string[] = Object.values(sponsorModules).map((mod: any) => mod.default.src ?? mod.default);
 
 const days = [
   {
@@ -47,6 +51,15 @@ const days = [
     ],
   },
 ];
+
+const lillypads = [
+  { src: Lillypad1.src, cls: "absolute left-[10%] top-[58%] w-[14%] z-10" },
+  { src: Lillypad2.src, cls: "absolute left-[18%] top-[66%] w-[14%] z-10" },
+  { src: Lillypad3.src, cls: "absolute left-[38%] top-[55%] w-[14%] z-10" },
+  { src: Lillypad4.src, cls: "absolute left-[48%] top-[66%] w-[14%] z-10" },
+  { src: Lillypad5.src, cls: "absolute left-[68%] top-[56%] w-[14%] z-10" },
+  { src: Lillypad6.src, cls: "absolute left-[75%] top-[63%] w-[14%] z-10" },
+];
 ---
 
 <Layout>
@@ -58,7 +71,7 @@ const days = [
       alt=""
       aria-hidden="true"
     />
-    <div class="schedule-list absolute p-2 left-1/2 top-[37%] sm:top-[41%] -translate-x-1/2 z-20 w-[40%] sm:w-[35%] overflow-y-auto max-h-[7%] sm:max-h-[5.25%]">
+    <div class="absolute p-2 left-1/2 top-[37%] sm:top-[41%] -translate-x-1/2 z-20 w-[40%] sm:w-[35%] overflow-y-auto max-h-[7%] sm:max-h-[5.25%] [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.3)_transparent]">
       {days.map((day) => (
         <div class="mb-2">
           <p class="font-bold text-md sm:text-lg">{day.label}</p>
@@ -68,31 +81,58 @@ const days = [
         </div>
       ))}
     </div>
-	<img src={Lillypad1.src} class="absolute left-[10%] top-[58%] w-[14%] z-10" aria-hidden="true" />
-	<img src={Lillypad2.src} class="absolute left-[18%] top-[66%] w-[14%] z-10" aria-hidden="true" />
-	<img src={Lillypad3.src} class="absolute left-[38%] top-[55%] w-[14%] z-10" aria-hidden="true" />
-	<img src={Lillypad4.src} class="absolute left-[48%] top-[66%] w-[14%] z-10" aria-hidden="true" />
-	<img src={Lillypad5.src} class="absolute left-[68%] top-[56%] w-[14%] z-10" aria-hidden="true" />
-	<img src={Lillypad6.src} class="absolute left-[75%] top-[63%] w-[14%] z-10" aria-hidden="true" />
+
+    {lillypads.map((pad, i) => (
+      <div class={`${pad.cls} lillypad-wrapper`} data-index={i}>
+        <div class="absolute inset-0 flex items-center justify-center">
+          <img class="sponsor-img w-full h-full object-contain opacity-0 transition-opacity duration-400" src="" alt="Sponsor" />
+        </div>
+        <img src={pad.src} class="w-full" aria-hidden="true" />
+      </div>
+    ))}
+
+    <img src={Bus.src} class="absolute left-1/2 bottom-[3.5%] w-[85%] -translate-x-1/2 z-10" aria-hidden="true" />
   </div>
 </Layout>
 
-<style>
-  .schedule-list {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+<script define:vars={{ sponsors }}>
+  const pads = document.querySelectorAll('.lillypad-wrapper');
+  const total = pads.length;
+
+  if (sponsors.length > 0) {
+    const currentIndices = Array.from({ length: total }, (_, i) =>
+      Math.floor((i * sponsors.length) / total)
+    );
+
+    pads.forEach((pad, i) => {
+      const img = pad.querySelector('.sponsor-img');
+      img.src = sponsors[currentIndices[i]];
+      requestAnimationFrame(() => img.classList.replace('opacity-0', 'opacity-100'));
+    });
+
+    pads.forEach((pad, i) => {
+      const img = pad.querySelector('.sponsor-img');
+
+      const cycle = () => {
+        img.classList.replace('opacity-100', 'opacity-0');
+        setTimeout(() => {
+          const inUse = currentIndices.filter((_, j) => j !== i);
+          let next = (currentIndices[i] + 1) % sponsors.length;
+          let attempts = 0;
+          while (inUse.includes(next) && attempts < sponsors.length) {
+            next = (next + 1) % sponsors.length;
+            attempts++;
+          }
+          currentIndices[i] = next;
+          img.src = sponsors[next];
+          img.classList.replace('opacity-0', 'opacity-100');
+        }, 500);
+      };
+
+      setTimeout(() => {
+        cycle();
+        setInterval(cycle, 10000);
+      }, 5000 + i * 1000);
+    });
   }
-  .schedule-list::-webkit-scrollbar {
-    width: 4px;
-  }
-  .schedule-list::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .schedule-list::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 9999px;
-  }
-  .schedule-list::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
-  }
-</style>
+</script>
