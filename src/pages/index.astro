@@ -105,23 +105,24 @@ const lillypads = [
 
 <Layout>
   <div class="relative w-full overflow-hidden">
-    <img class="block w-full h-auto align-middle" src={LandingPage.src} alt="PickHacks 2026" />
+    <img class="block w-full h-auto align-middle" src={LandingPage.src} alt="PickHacks 2026" draggable="false" />
     <div class="absolute left-1/2 sm:top-[11%] top-[21%] -translate-x-1/2 z-1 flex flex-col items-center gap-6">
-      <h1 class="sm:text-5xl text-3xl w-full text-center text-[#ebebeb] font-black text-shadow-2xl text-nowrap">February 27th - March 1st</h1>
-      <a class="sm:text-3xl text-xl sm:px-6 sm:py-3 px-4 py-2 text-black font-bold border-5 hover:bg-[#bd6e44] border-[#bd6e44] rounded-xl duration-100 transition-all" href="https://register.pickhacks.io/">Register</a>
+      <h1 class="sm:text-5xl text-3xl w-full text-center text-[#ebebeb] font-black text-nowrap stroke-2 stroke-white">February 27th - March 1st</h1>
+      <a class="sm:text-3xl text-xl sm:px-6 sm:py-3 px-4 py-2 text-[#ebebeb] font-bold border-5 border-[#bd6e44] rounded-xl active:scale-95 duration-100 transition-all bg-[#bd6e44] sm:bg-transparent sm:hover:bg-[#bd6e44]" href="https://register.pickhacks.io/">Register</a>
     </div>
     <img
-      class="absolute left-1/2 top-[30%] w-[60%] sm:top-[35%] sm:w-[50%] -translate-x-1/2 z-10"
+      class="absolute left-1/2 top-[32%] w-[60%] sm:top-[35%] sm:w-[50%] -translate-x-1/2 z-10"
       src={Sign.src}
       alt=""
       aria-hidden="true"
+      draggable="false"
     />
-    <div class="absolute p-2 left-1/2 top-[37%] sm:top-[41%] -translate-x-1/2 z-20 w-[40%] sm:w-[35%] overflow-y-auto max-h-[7%] sm:max-h-[5.25%] [scrollbar-width:thin] [scrollbar-color:rgba(0,0,0,0.3)_transparent]">
+    <div class="schedule-list absolute p-2 left-1/2 top-[39%] sm:top-[41%] -translate-x-1/2 z-20 w-[40%] sm:w-[35%] overflow-y-auto max-h-[7%] sm:max-h-[5.25%]">
       {days.map((day) => (
         <div class="mb-2">
-          <p class="font-bold text-md sm:text-lg">{day.label}</p>
+          <p class="font-bold text-[0.75rem] sm:text-lg">{day.label}</p>
           {day.events.map((event) => (
-            <p class="text-xs sm:text-sm">{event.time} - {event.title}</p>
+            <p class="text-[0.65rem] sm:text-sm">{event.time} - {event.title}</p>
           ))}
         </div>
       ))}
@@ -139,17 +140,18 @@ const lillypads = [
               class="sponsor-img w-full h-full object-contain opacity-0 transition-opacity duration-400"
               src=""
               alt="Sponsor"
+              draggable="false"
             />
           </a>
         </div>
-        <img src={pad.src} class="w-full" aria-hidden="true" />
+        <img src={pad.src} class="w-full" aria-hidden="true" draggable="false" />
       </div>
     ))}
 
-    <img id="bus-shadow" src={BusShadow.src} class="absolute left-1/2 bottom-[3%] w-[85%] z-10" aria-hidden="true" />
+    <img id="bus-shadow" src={BusShadow.src} class="absolute left-1/2 bottom-[3%] w-[85%] z-10" aria-hidden="true" draggable="false" />
 
     <div id="bus-container" class="absolute left-1/2 bottom-[3.5%] w-[85%] z-20">
-      <img src={Bus.src} class="w-full h-auto block" aria-hidden="true" id="bus-img" />
+      <img src={Bus.src} class="w-full h-auto block" aria-hidden="true" id="bus-img" draggable="false" />
       {busWindows.map((win, i) => (
         <div
           class="team-window group absolute overflow-hidden opacity-0 transition-opacity duration-200"
@@ -163,6 +165,7 @@ const lillypads = [
             class="team-member-img w-full h-full object-cover"
             src=""
             alt="Team member"
+            draggable="false"
           />
           <div class="team-member-name absolute bottom-0 left-0 right-0 text-center text-white text-xs font-semibold py-1 px-1 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none leading-tight"></div>
         </div>
@@ -172,6 +175,29 @@ const lillypads = [
 </Layout>
 
 <style>
+  img {
+    -webkit-user-drag: none;
+    user-select: none;
+  }
+
+  .schedule-list {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  }
+  .schedule-list::-webkit-scrollbar {
+    width: 4px;
+  }
+  .schedule-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .schedule-list::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 9999px;
+  }
+  .schedule-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+
   @keyframes busExit {
     from { transform: translateX(-50%); }
     to   { transform: translateX(-200%); }
