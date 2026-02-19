@@ -11,10 +11,10 @@ import Lillypad6 from "../assets/lillypad-6.svg";
 import Bus from "../assets/bus.svg";
 import BusShadow from "../assets/bus-shadow.svg";
 
-const sponsorModules = import.meta.glob('../assets/sponsors/*', { eager: true });
-const sponsors: string[] = Object.values(sponsorModules).map((mod: any) => mod.default.src ?? mod.default);
+const partnerModules = import.meta.glob('../assets/partners/*', { eager: true });
+const partners: string[] = Object.values(partnerModules).map((mod: any) => mod.default.src ?? mod.default);
 
-const sponsorUrlMap: Record<string, string> = {
+const partnerUrlMap: Record<string, string> = {
   nordvpn:    "https://nordvpn.com/hackathons",
   incogni:    "https://incogni.com/",
   nordpass:   "https://nordpass.com/",
@@ -22,9 +22,9 @@ const sponsorUrlMap: Record<string, string> = {
   "nexos-ai": "https://nexos.ai/",
 };
 
-const sponsorUrls: string[] = Object.keys(sponsorModules).map((path) => {
+const partnerUrls: string[] = Object.keys(partnerModules).map((path) => {
   const filename = path.toLowerCase();
-  for (const [key, url] of Object.entries(sponsorUrlMap)) {
+  for (const [key, url] of Object.entries(partnerUrlMap)) {
     if (filename.includes(key)) return url;
   }
   return "";
@@ -71,7 +71,7 @@ const days = [
     label: "Saturday, Feb 28",
     events: [
       { time: "8:00 - 9:30 AM", title: "Breakfast" },
-      { time: "11:00 AM - 12:30 PM", title: "Sponsor Career Fair" },
+      { time: "11:00 AM - 12:30 PM", title: "Partner Career Fair" },
       { time: "12:30 - 1:30 PM", title: "Lunch" },
       { time: "2:00 - 3:00 PM", title: "MLH Event" },
       { time: "5:00 - 6:00 PM", title: "MLH Event" },
@@ -129,17 +129,16 @@ const lillypads = [
     </div>
 
     {lillypads.map((pad, i) => (
-      <div class={`${pad.cls} lillypad-wrapper`} data-index={i}>
+      <div class={`${pad.cls} pad-wrapper`} data-index={i}>
         <div class="absolute inset-0 flex items-center justify-center">
           <a
-            class="sponsor-link w-full h-full flex items-center justify-center"
+            class="pad-link w-full h-full flex items-center justify-center"
             target="_blank"
             rel="nofollow"
           >
             <img
-              class="sponsor-img w-full h-full object-contain opacity-0 transition-opacity duration-400"
+              class="pad-logo w-full h-full object-contain opacity-0 transition-opacity duration-400"
               src=""
-              alt="Sponsor"
               draggable="false"
             />
           </a>
@@ -214,22 +213,22 @@ const lillypads = [
   #bus-shadow.bus-enter    { animation: busEnter 1.2s cubic-bezier(0, 0, 0.3, 1) forwards; }
 </style>
 
-<script define:vars={{ sponsors, sponsorUrls }}>
-  const pads = document.querySelectorAll('.lillypad-wrapper');
+<script define:vars={{ partners, partnerUrls }}>
+  const pads = document.querySelectorAll('.pad-wrapper');
   const total = pads.length;
 
-  if (sponsors.length === 0) return;
+  if (partners.length === 0) return;
 
   const currentIndices = Array.from({ length: total }, (_, i) =>
-    Math.floor((i * sponsors.length) / total)
+    Math.floor((i * partners.length) / total)
   );
 
-  function applySponsor(pad, index, fadeIn = true) {
-    const link = pad.querySelector('.sponsor-link');
-    const img  = pad.querySelector('.sponsor-img');
-    const url  = sponsorUrls[index] || "";
+  function applyPartner(pad, index, fadeIn = true) {
+    const link = pad.querySelector('.pad-link');
+    const img  = pad.querySelector('.pad-logo');
+    const url  = partnerUrls[index] || "";
 
-    img.src = sponsors[index];
+    img.src = partners[index];
 
     if (url) {
       link.href = url;
@@ -244,22 +243,22 @@ const lillypads = [
     }
   }
 
-  pads.forEach((pad, i) => applySponsor(pad, currentIndices[i]));
+  pads.forEach((pad, i) => applyPartner(pad, currentIndices[i]));
 
   pads.forEach((pad, i) => {
     const cycle = () => {
-      const img = pad.querySelector('.sponsor-img');
+      const img = pad.querySelector('.pad-logo');
       img.classList.replace('opacity-100', 'opacity-0');
       setTimeout(() => {
         const inUse = currentIndices.filter((_, j) => j !== i);
-        let next = (currentIndices[i] + 1) % sponsors.length;
+        let next = (currentIndices[i] + 1) % partners.length;
         let attempts = 0;
-        while (inUse.includes(next) && attempts < sponsors.length) {
-          next = (next + 1) % sponsors.length;
+        while (inUse.includes(next) && attempts < partners.length) {
+          next = (next + 1) % partners.length;
           attempts++;
         }
         currentIndices[i] = next;
-        applySponsor(pad, next, true);
+        applyPartner(pad, next, true);
       }, 500);
     };
     setTimeout(() => { cycle(); setInterval(cycle, 10000); }, 5000 + i * 1000);
@@ -297,11 +296,11 @@ const lillypads = [
   if (teamMembers.length === 0) return;
 
   function getMemberInfo(src) {
-  for (const [key, info] of Object.entries(memberData)) {
-    if (src.includes(key)) return info;
+    for (const [key, info] of Object.entries(memberData)) {
+      if (src.includes(key)) return info;
+    }
+    return { name: 'Team Member', role: '' };
   }
-  return { name: 'Team Member', role: '' };
-}
 
   const total = teamWindows.length;
   const currentIndices = Array.from({ length: total }, (_, i) =>
